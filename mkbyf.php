@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
+use Process;
 
 class mkbyf extends Command
 {
@@ -76,5 +77,7 @@ class mkbyf extends Command
                 $this->error($th->getMessage());
             }
         }
+
+        Process::path($to)->run('composer update --no-dev');
     }
 }
