@@ -77,7 +77,13 @@ class mkbyf extends Command
                 $this->error($th->getMessage());
             }
         }
-
-        Process::path($to)->run('composer update --no-dev');
+        $this->info('Updating composer dependencies');
+        $processRes = Process::path($to)->run('composer update --no-dev');
+        if($processRes->errorOutput() != ''){
+            $this->error('Failed to update composer dependencies');
+            $this->error($processRes->errorOutput());
+        }else{
+            $this->info('Composer dependencies updated');
+        }
     }
 }
