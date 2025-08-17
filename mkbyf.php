@@ -89,7 +89,7 @@ class mkbyf extends Command
 
         Process::path($to)->run('composer update --no-dev');
 
-        $imageAssetFolder = base_path($to."/assets/global/images");
+        $imageAssetFolder = ($to."/assets/global/images");
 
         $buyerSql = '/DB/gamkon.sql';
 
