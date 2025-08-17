@@ -2,12 +2,15 @@
 
 namespace App\Console\Commands;
 
+use App\Traits\ImageUpload;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Process;
 
 class mkbyf extends Command
 {
+    use ImageUpload;
+
     /**
      * The name and signature of the console command.
      *
@@ -41,34 +44,40 @@ class mkbyf extends Command
             'index.php',
         ];
 
-        if($this->option('first')){
+        if ($this->option('first')) {
             $copyDirs[] = 'bootstrap';
-            $copyDirs[] = 'public';
+            $copyDirs[] = 'assets';
             $copyDirs[] = 'vendor';
             $copyDirs[] = 'DB';
             $copyDirs[] = 'lang';
             $copyDirs[] = 'database';
             $copyDirs[] = 'Documentation';
             $copyDirs[] = 'storage';
+            $copyDirs[] = '.env';
+            $copyDirs[] = '.htaccess';
+            $copyDirs[] = 'modules';
         }
         $destFolder = base_path();
-        $to = (str($destFolder)->beforeLast(DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.(str($destFolder)->afterLast(DIRECTORY_SEPARATOR).'-buyer'));
+        $PROJECT_NAME = str($destFolder)->beforeLast(DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.(str($destFolder)->afterLast(DIRECTORY_SEPARATOR));
+        $to = ($PROJECT_NAME.'-buyer');
+
         try {
             $this->info('Creating buyer file in '.$to);
-            if(!File::isDirectory($to)){
+            if (! File::isDirectory($to)) {
                 File::makeDirectory($to);
             }
         } catch (\Throwable $th) {
             $this->error('Failed to create directory: '.$to);
+
             return;
         }
 
-        foreach($copyDirs as $dir){
+        foreach ($copyDirs as $dir) {
             $this->info('Copying '.$dir.' to '.$to);
             try {
-                if(File::isDirectory(base_path($dir))){
+                if (File::isDirectory(base_path($dir))) {
                     File::copyDirectory(base_path($dir), $to.'/'.$dir);
-                }else{
+                } else {
                     File::copy(base_path($dir), $to.'/'.$dir);
                 }
                 $this->info('Copied '.$dir.' to '.$to);
@@ -77,13 +86,24 @@ class mkbyf extends Command
                 $this->error($th->getMessage());
             }
         }
-        $this->info('Updating composer dependencies');
-        $processRes = Process::path($to)->run('composer update --no-dev');
-        if($processRes->errorOutput() != ''){
-            $this->error('Failed to update composer dependencies');
-            $this->error($processRes->errorOutput());
-        }else{
-            $this->info('Composer dependencies updated');
+
+        Process::path($to)->run('composer update --no-dev');
+
+        $imageAssetFolder = base_path($to."/assets/global/images");
+
+        $buyerSql = '/DB/gamkon.sql';
+
+        $sqlContent = File::get(base_path($buyerSql));
+
+        foreach (File::allFiles($imageAssetFolder) as $key => $file) {
+            
+            if(!str($sqlContent)->contains($file->getFilename())) {
+                File::delete($file->getRealPath());
+                $this->info('Deleted '.$file->getFilename().' from '.$imageAssetFolder);
+            }
         }
+
+        $this->info('Cleanup of image assets completed.');
+
     }
 }
