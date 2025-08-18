@@ -87,7 +87,9 @@ class mkbyf extends Command
             }
         }
 
-        Process::path($to)->run('composer update --no-dev');
+        if($this->option('first')) {
+            Process::path($to)->run('composer update --no-dev');
+        }
 
         $imageAssetFolder = ($to."/assets/global/images");
 
