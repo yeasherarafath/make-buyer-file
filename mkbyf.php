@@ -34,6 +34,7 @@ class mkbyf extends Command
             'app',
             'config',
             // 'public',
+            'DB',
             'resources',
             'routes',
             'tests',
@@ -48,7 +49,7 @@ class mkbyf extends Command
             $copyDirs[] = 'bootstrap';
             $copyDirs[] = 'assets';
             $copyDirs[] = 'vendor';
-            $copyDirs[] = 'DB';
+            // $copyDirs[] = 'DB';
             $copyDirs[] = 'lang';
             $copyDirs[] = 'database';
             $copyDirs[] = 'Documentation';
@@ -93,9 +94,9 @@ class mkbyf extends Command
 
         $imageAssetFolder = ($to."/assets/global/images");
 
-        $buyerSql = '/DB/gamkon.sql';
+        $buyerSql = $to.'/DB/gamkon-buyer.sql';
 
-        $sqlContent = File::get(base_path($buyerSql));
+        $sqlContent = File::get($buyerSql);
 
         foreach (File::allFiles($imageAssetFolder) as $key => $file) {
             
@@ -104,8 +105,20 @@ class mkbyf extends Command
                 $this->info('Deleted '.$file->getFilename().' from '.$imageAssetFolder);
             }
         }
-
         $this->info('Cleanup of image assets completed.');
+
+        // clear storage files
+        $storagePath = $to.'/storage';
+        $storageFiles = File::allFiles($storagePath);
+        foreach ($storageFiles as $file) {
+            if(str($file->getFilename())->contains('.gitignore') || str($file->getFilename())->contains('index.php')) {
+                $this->info('Skipping '.$file->getFilename().' in '.$storagePath);
+                continue;
+            }
+            File::delete($file->getRealPath());
+            $this->info('Deleted '.$file->getFilename().' from '.$storagePath);
+        }
+
 
     }
 }
