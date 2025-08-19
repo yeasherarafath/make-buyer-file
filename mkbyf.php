@@ -119,6 +119,24 @@ class mkbyf extends Command
             $this->info('Deleted '.$file->getFilename().' from '.$storagePath);
         }
 
+        $this->info('Storage cleanup completed.');
 
+        // delete system commands
+        $systemCommands = [
+            'mkbyf',
+            'CopyAssets',
+        ];
+
+
+        foreach ($systemCommands as $command) {
+            $commandFile = $to.'/app/Console/Commands/'.$command.'.php';
+            if (File::exists($commandFile)) {
+                File::delete($commandFile);
+                $this->info('Deleted '.$commandFile);
+            } else {
+                $this->info('Command file '.$commandFile.' does not exist.');
+            }
+
+        }
     }
 }
