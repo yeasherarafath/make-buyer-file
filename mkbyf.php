@@ -111,7 +111,9 @@ class mkbyf extends Command
         $storagePath = $to.'/storage';
         $storageFiles = File::allFiles($storagePath);
         foreach ($storageFiles as $file) {
-            if(str($file->getFilename())->contains('.gitignore') || str($file->getFilename())->contains('index.php')) {
+            if(str($file->getFilename())->contains(['index','.gitignore', 'README.md','installed'])
+            
+            ) {
                 $this->info('Skipping '.$file->getFilename().' in '.$storagePath);
                 continue;
             }
