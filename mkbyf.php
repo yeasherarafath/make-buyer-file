@@ -34,7 +34,7 @@ class mkbyf extends Command
             'app',
             'config',
             // 'public',
-            'DB',
+            // 'DB',
             'resources',
             'routes',
             'tests',
@@ -49,7 +49,6 @@ class mkbyf extends Command
             $copyDirs[] = 'bootstrap';
             $copyDirs[] = 'assets';
             $copyDirs[] = 'vendor';
-            // $copyDirs[] = 'DB';
             $copyDirs[] = 'lang';
             $copyDirs[] = 'database';
             $copyDirs[] = 'Documentation';
@@ -58,6 +57,11 @@ class mkbyf extends Command
             $copyDirs[] = '.htaccess';
             $copyDirs[] = 'modules';
         }
+
+        if($this->option('db')) {
+            $copyDirs[] = 'DB';
+        }
+
         $destFolder = base_path();
         $PROJECT_NAME = str($destFolder)->beforeLast(DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.(str($destFolder)->afterLast(DIRECTORY_SEPARATOR));
         $to = ($PROJECT_NAME.'-buyer');
@@ -111,7 +115,7 @@ class mkbyf extends Command
         $storagePath = $to.'/storage';
         $storageFiles = File::allFiles($storagePath);
         foreach ($storageFiles as $file) {
-            if(str($file->getFilename())->contains(['index','.gitignore', 'README.md','installed'])
+            if(str($file->getFilename())->contains(['index.php','.gitignore', 'README.md','installed'],true)
             
             ) {
                 $this->info('Skipping '.$file->getFilename().' in '.$storagePath);
