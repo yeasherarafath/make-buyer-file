@@ -37,7 +37,7 @@ class mkbyf extends Command
             'DB',
             'resources',
             'routes',
-            'tests',
+            // 'tests',
             // 'vendor',
             'artisan',
             'composer.json',
@@ -59,66 +59,74 @@ class mkbyf extends Command
             $copyDirs[] = 'modules';
         }
         $destFolder = base_path();
-        $PROJECT_NAME = str($destFolder)->beforeLast(DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.(str($destFolder)->afterLast(DIRECTORY_SEPARATOR));
-        $to = ($PROJECT_NAME.'-buyer');
+        $PROJECT_NAME = str($destFolder)->beforeLast(DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . (str($destFolder)->afterLast(DIRECTORY_SEPARATOR));
+        $to = ($PROJECT_NAME . '-buyer');
+
+
+        if ($this->option('first')) {
+            // clear the directory before
+            File::cleanDirectory($to);
+        }
 
         try {
-            $this->info('Creating buyer file in '.$to);
-            if (! File::isDirectory($to)) {
+            $this->info('Creating buyer file in ' . $to);
+            if (!File::isDirectory($to)) {
                 File::makeDirectory($to);
             }
         } catch (\Throwable $th) {
-            $this->error('Failed to create directory: '.$to);
+            $this->error('Failed to create directory: ' . $to);
 
             return;
         }
 
         foreach ($copyDirs as $dir) {
-            $this->info('Copying '.$dir.' to '.$to);
+            $this->info('Copying ' . $dir . ' to ' . $to);
             try {
                 if (File::isDirectory(base_path($dir))) {
-                    File::copyDirectory(base_path($dir), $to.'/'.$dir);
+                    File::copyDirectory(base_path($dir), $to . '/' . $dir);
                 } else {
-                    File::copy(base_path($dir), $to.'/'.$dir);
+                    File::copy(base_path($dir), $to . '/' . $dir);
                 }
-                $this->info('Copied '.$dir.' to '.$to);
+                $this->info('Copied ' . $dir . ' to ' . $to);
             } catch (\Throwable $th) {
-                $this->error('Failed to copy '.$dir.' to '.$to);
+                $this->error('Failed to copy ' . $dir . ' to ' . $to);
                 $this->error($th->getMessage());
             }
         }
 
-        if($this->option('first')) {
+        if ($this->option('first')) {
             Process::path($to)->run('composer update --no-dev');
         }
 
-        $imageAssetFolder = ($to."/assets/global/images");
+        $imageAssetFolder = ($to . '/assets/global/images');
 
-        $buyerSql = $to.'/DB/gamkon-buyer.sql';
+        $buyerSql = $to . '/DB/gamkon-buyer.sql';
 
         $sqlContent = File::get($buyerSql);
 
         foreach (File::allFiles($imageAssetFolder) as $key => $file) {
-            
-            if(!str($sqlContent)->contains($file->getFilename())) {
+
+            if (!str($sqlContent)->contains($file->getFilename())) {
                 File::delete($file->getRealPath());
-                $this->info('Deleted '.$file->getFilename().' from '.$imageAssetFolder);
+                $this->info('Deleted ' . $file->getFilename() . ' from ' . $imageAssetFolder);
             }
         }
         $this->info('Cleanup of image assets completed.');
 
         // clear storage files
-        $storagePath = $to.'/storage';
+        $storagePath = $to . '/storage';
         $storageFiles = File::allFiles($storagePath);
         foreach ($storageFiles as $file) {
-            if(str($file->getFilename())->contains(['index.php','.gitignore', 'README.md','installed'],true)
-            
+            if (
+                str($file->getFilename())->contains(['index.php', '.gitignore', 'README.md', 'installed'], true)
+
             ) {
-                $this->info('Skipping '.$file->getFilename().' in '.$storagePath);
+                $this->info('Skipping ' . $file->getFilename() . ' in ' . $storagePath);
+
                 continue;
             }
             File::delete($file->getRealPath());
-            $this->info('Deleted '.$file->getFilename().' from '.$storagePath);
+            $this->info('Deleted ' . $file->getFilename() . ' from ' . $storagePath);
         }
 
         $this->info('Storage cleanup completed.');
@@ -129,16 +137,18 @@ class mkbyf extends Command
             'CopyAssets',
         ];
 
-
         foreach ($systemCommands as $command) {
-            $commandFile = $to.'/app/Console/Commands/'.$command.'.php';
+            $commandFile = $to . '/app/Console/Commands/' . $command . '.php';
             if (File::exists($commandFile)) {
                 File::delete($commandFile);
-                $this->info('Deleted '.$commandFile);
+                $this->info('Deleted ' . $commandFile);
             } else {
-                $this->info('Command file '.$commandFile.' does not exist.');
+                $this->info('Command file ' . $commandFile . ' does not exist.');
             }
-
         }
+
+        // clear cache
+        Process::path($to)->run('php artisan optimize:clear');
+        $this->info('Buyer file creation completed successfully.');
     }
 }
