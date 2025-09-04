@@ -3,8 +3,10 @@
 namespace App\Console\Commands;
 
 use App\Traits\ImageUpload;
+use Dotenv\Dotenv;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
+use Jackiedo\DotenvEditor\DotenvEditor;
 use Process;
 
 class mkbyf extends Command
@@ -60,6 +62,7 @@ class mkbyf extends Command
         }
         $destFolder = base_path();
         $PROJECT_NAME = str($destFolder)->beforeLast(DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . (str($destFolder)->afterLast(DIRECTORY_SEPARATOR));
+
         $to = ($PROJECT_NAME . '-buyer');
 
 
@@ -118,7 +121,7 @@ class mkbyf extends Command
         $storageFiles = File::allFiles($storagePath);
         foreach ($storageFiles as $file) {
             if (
-                str($file->getFilename())->contains(['index.php', '.gitignore', 'README.md', 'installed'], true)
+                str($file->getFilename())->contains(['index.php', '.gitignore', 'README.md'], true)
 
             ) {
                 $this->info('Skipping ' . $file->getFilename() . ' in ' . $storagePath);
@@ -145,6 +148,27 @@ class mkbyf extends Command
             } else {
                 $this->info('Command file ' . $commandFile . ' does not exist.');
             }
+        }
+
+        // dot env editor
+        app(DotenvEditor::class)->load($to . '/.env')->deleteKey('LICENSE_KEY')->save();
+
+        // delete admin login credentials
+
+        $adminLogin = File::get($to . '/resources/views/backend/auth/login.blade.php');
+        $adminLogin = str($adminLogin)->replaceMatches('/value=".*?"/', 'value=""');
+        File::put($to . '/resources/views/backend/auth/login.blade.php', $adminLogin);
+        $this->info('Cleared admin login credentials from login view.');
+
+        // delete main sql and make buyer sql to 
+
+        $projectName = basename($PROJECT_NAME);
+
+        if (File::exists($to . "/DB/$projectName.sql") && File::exists($to . "/DB/$projectName-buyer.sql")) {
+            File::delete($to . '/DB/' . $projectName . '.sql');
+            $this->info('Deleted main SQL file: ' . $projectName . '.sql');
+
+            rename($to . "/DB/$projectName-buyer.sql", $to . "/DB/$projectName.sql");
         }
 
         // clear cache
