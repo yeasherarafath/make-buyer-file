@@ -138,7 +138,7 @@ class mkbyf extends Command
 
 
         // dot env editor
-        app(DotenvEditor::class)->load($to . '/.env')->deleteKey('LICENSE_KEY')->save();
+        app(DotenvEditor::class)->load($to . '/.env')->deleteKeys(['LICENSE_KEY','APP_DEMO'])->save();
 
         // delete admin login credentials
 
