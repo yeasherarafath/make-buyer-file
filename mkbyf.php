@@ -60,6 +60,10 @@ class mkbyf extends Command
             $copyDirs[] = '.htaccess';
             $copyDirs[] = 'modules';
         }
+
+        if ($this->option('vendor')) {
+            $copyDirs[] = 'vendor';
+        }
         $destFolder = base_path();
         $PROJECT_NAME = str($destFolder)->beforeLast(DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . (str($destFolder)->afterLast(DIRECTORY_SEPARATOR));
 
