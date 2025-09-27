@@ -18,7 +18,7 @@ class mkbyf extends Command
      *
      * @var string
      */
-    protected $signature = 'mkbyf {--first}';
+    protected $signature = 'mkbyf {--first} {--vendor}';
 
     /**
      * The console command description.
