@@ -148,6 +148,8 @@ class mkbyf extends Command
             'ASSET_URL' => '',
         ])->save();
 
+        $this->info('Updated .env file.');
+
         // delete admin login credentials
 
         $adminLogin = File::get($to . '/resources/views/backend/auth/login.blade.php');
