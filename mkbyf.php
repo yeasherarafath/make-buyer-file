@@ -41,6 +41,7 @@ class mkbyf extends Command
             'routes',
             // 'tests',
             // 'vendor',
+            'modules',
             'artisan',
             'composer.json',
             'composer.lock',
@@ -190,3 +191,4 @@ class mkbyf extends Command
         $this->info('Buyer file creation completed successfully.');
     }
 }
+
