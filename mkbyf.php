@@ -3,11 +3,11 @@
 namespace App\Console\Commands;
 
 use App\Traits\ImageUpload;
-use Dotenv\Dotenv;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Jackiedo\DotenvEditor\DotenvEditor;
 use Process;
+use Throwable;
 
 class mkbyf extends Command
 {
@@ -25,7 +25,7 @@ class mkbyf extends Command
      *
      * @var string
      */
-    protected $description = 'Make Buyer File, (--first) if first time';
+    protected $description = 'Make Buyer File, (--first) if first time, --vendor to include vendor folder';
 
     /**
      * Execute the console command.
@@ -53,7 +53,7 @@ class mkbyf extends Command
             $copyDirs[] = 'assets';
             $copyDirs[] = 'vendor';
             // $copyDirs[] = 'DB';
-            $copyDirs[] = 'lang';
+            $copyDirs[] = 'resources/lang';
             $copyDirs[] = 'database';
             $copyDirs[] = 'Documentation';
             $copyDirs[] = 'storage';
@@ -70,7 +70,6 @@ class mkbyf extends Command
 
         $to = ($PROJECT_NAME . '-buyer');
 
-
         if ($this->option('first')) {
             // clear the directory before
             File::cleanDirectory($to);
@@ -81,7 +80,7 @@ class mkbyf extends Command
             if (!File::isDirectory($to)) {
                 File::makeDirectory($to);
             }
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             $this->error('Failed to create directory: ' . $to);
 
             return;
@@ -96,7 +95,7 @@ class mkbyf extends Command
                     File::copy(base_path($dir), $to . '/' . $dir);
                 }
                 $this->info('Copied ' . $dir . ' to ' . $to);
-            } catch (\Throwable $th) {
+            } catch (Throwable $th) {
                 $this->error('Failed to copy ' . $dir . ' to ' . $to);
                 $this->error($th->getMessage());
             }
@@ -119,6 +118,7 @@ class mkbyf extends Command
                 $this->info('Deleted ' . $file->getFilename() . ' from ' . $imageAssetFolder);
             }
         }
+
         $this->info('Cleanup of image assets completed.');
 
         // clear storage files
@@ -140,8 +140,6 @@ class mkbyf extends Command
 
         $this->info('Storage cleanup completed.');
 
-
-
         // dot env editor
         app(DotenvEditor::class)->load($to . '/.env')->deleteKeys(['LICENSE_KEY', 'APP_DEMO'])->save();
         app(DotenvEditor::class)->load($to . '/.env')->setKeys([
@@ -158,7 +156,7 @@ class mkbyf extends Command
         File::put($to . '/resources/views/backend/auth/login.blade.php', $adminLogin);
         $this->info('Cleared admin login credentials from login view.');
 
-        // delete main sql and make buyer sql to 
+        // delete main sql and make buyer sql to
 
         $projectName = basename($PROJECT_NAME);
 
@@ -168,7 +166,6 @@ class mkbyf extends Command
 
             rename($to . "/DB/$projectName-buyer.sql", $to . "/DB/$projectName.sql");
         }
-
 
         // delete system commands
         $systemCommands = [
@@ -191,4 +188,3 @@ class mkbyf extends Command
         $this->info('Buyer file creation completed successfully.');
     }
 }
-
