@@ -103,6 +103,7 @@ class mkbyf extends Command
 
         if ($this->option('first')) {
             Process::path($to)->run('composer update --no-dev');
+            $this->info('Composer dependencies updated without dev packages.');
         }
 
         $imageAssetFolder = ($to . '/assets/global/images');
