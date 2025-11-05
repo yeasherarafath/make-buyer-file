@@ -51,6 +51,7 @@ class mkbyf extends Command
         if ($this->option('first')) {
             $copyDirs[] = 'bootstrap';
             $copyDirs[] = 'assets';
+            $copyDirs[] = 'public';
             $copyDirs[] = 'vendor';
             // $copyDirs[] = 'DB';
             $copyDirs[] = 'resources/lang';
@@ -108,7 +109,7 @@ class mkbyf extends Command
 
         $imageAssetFolder = ($to . '/assets/global/images');
 
-        $buyerSql = $to . '/DB/' . basename($to) . '-buyer.sql';
+        $buyerSql = $to . '/DB/' . basename($to) . '.sql';
 
         $sqlContent = File::get($buyerSql);
 
