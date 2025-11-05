@@ -32,10 +32,12 @@ class mkbyf extends Command
      */
     public function handle()
     {
+
+        $assetFolder = 'public'; // assets
         $copyDirs = [
             'app',
             'config',
-            // 'public',
+            // $assetFolder,
             'DB',
             'resources',
             'routes',
@@ -50,8 +52,7 @@ class mkbyf extends Command
 
         if ($this->option('first')) {
             $copyDirs[] = 'bootstrap';
-            $copyDirs[] = 'assets';
-            $copyDirs[] = 'public';
+            $copyDirs[] = $assetFolder;
             $copyDirs[] = 'vendor';
             // $copyDirs[] = 'DB';
             $copyDirs[] = 'resources/lang';
