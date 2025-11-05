@@ -108,7 +108,7 @@ class mkbyf extends Command
 
         $imageAssetFolder = ($to . '/assets/global/images');
 
-        $buyerSql = $to . '/DB/gamkon-buyer.sql';
+        $buyerSql = $to . '/DB/' . basename($to) . '-buyer.sql';
 
         $sqlContent = File::get($buyerSql);
 
