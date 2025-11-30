@@ -170,6 +170,15 @@ class mkbyf extends Command
             $this->info('Deleted main SQL file: ' . $projectName . '.sql');
 
             rename($to . "/DB/$projectName-buyer.sql", $to . "/DB/$projectName.sql");
+
+            $newBuyerSql = $to . '/DB/' . $projectName . '.sql';
+            $buyerFIleContent = File::get($newBuyerSql);
+            $buyerFIleContent = str($buyerFIleContent)->replace('debug_mode\', \'1\'', 'debug_mode\', \'0\'')
+
+                ->replace("'debug_mode', '1'", "'debug_mode', '0'");
+            File::put($newBuyerSql, $buyerFIleContent);
+
+            $this->info('Renamed buyer SQL file to main SQL file: ' . $projectName . '.sql');
         }
 
         // delete system commands
