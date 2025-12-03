@@ -185,6 +185,8 @@ class mkbyf extends Command
         $systemCommands = [
             'mkbyf',
             'CopyAssets',
+            'gp',
+
         ];
 
         foreach ($systemCommands as $command) {
